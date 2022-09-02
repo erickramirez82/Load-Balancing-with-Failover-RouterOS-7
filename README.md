@@ -41,17 +41,23 @@ Luego crearlas debes volver abrir configurar manualmente el campo New Routing Ma
 
 - Definimos las rutas Ip->Route
 
+1.Monitor dst-address=(Dns operador claro:190.157.8.33, movistar:200.21.200.10, etb:200.75.51.132) 
 ```
 /ip/route/
-add dst-address=8.8.8.8 scope=10 gateway=%ether1-wan
-add dst-address=8.8.4.4 scope=10 gateway=%ether2-wan
+add dst-address=8.8.8.8 scope=10 gateway=%ether1-wan comment="Monitor IPS1"
+add dst-address=200.21.200.10 scope=10 gateway=%ether2-wan comment="Monitor IPS2"
 
 /ip/route/
+add distance=1 gateway=8.8.8.8 target-scope=11  routing-table=to_ISP1 check-gateway=ping comment="Routing IPS1"
+add distance=2 gateway=200.21.200.10 target-scope=11 routing-table=to_ISP2 check-gateway=ping comment="Routing IPS2"
 
+/ip/route/
+add distance=1 gateway=8.8.8.8 target-scope=11 check-gateway=ping comment="Default IPS1"
+add distance=2 gateway=200.21.200.10 target-scope=11  check-gateway=ping comment="Default IPS2"
 
-add distance=1 gateway=8.8.8.8 routing-table=to_ISP1 check-gateway=ping
-add distance=2 gateway=8.8.4.4 routing-table=to_ISP2 check-gateway=ping
-
+/ip/route/
+add distance=2 gateway=8.8.8.8 target-scope=11  routing-table=to_ISP2 check-gateway=ping comment="Failover IPS1"
+add distance=2 gateway=200.21.200.10 target-scope=11 routing-table=to_ISP1 check-gateway=ping comment="Failover IPS2"
 
 ```
 
