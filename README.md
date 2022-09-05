@@ -27,8 +27,8 @@ add action=mark-connection chain=prerouting connection-mark=no-mark dst-address-
 - Definir Rutas
 ```
 /ip firewall mangle
- add action=mark-routing chain=prerouting comment="Definir Rutas" connection-mark=ISP1_conn in-interface=bridge passthrough=no
- add action=mark-routing chain=prerouting connection-mark=ISP2_conn in-interface=bridge passthrough=no
+ add action=mark-routing chain=prerouting comment="Definir Rutas" connection-mark=ISP1_conn new-routing-mark=to_ISP1  in-interface=bridge passthrough=no
+ add action=mark-routing chain=prerouting connection-mark=ISP2_conn new-routing-mark=to_ISP2 in-interface=bridge passthrough=no
  ```
  Luego crearlas debes volver abrir configurar manualmente el campo New Routing Mark para cada una ejemplo New Routing Mark: to_ISP1 o to_ISP2 dato proviene de /routing/table 
 
