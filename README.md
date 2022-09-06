@@ -1,6 +1,7 @@
 # Load-Balancing-with-Failover-RouterOS-7
 Failover (WAN Backup)
 
+[![balanceo2wan.jpg](https://i.postimg.cc/vmHcJ5zB/balanceo2wan.jpg)](https://postimg.cc/cv2xYgPy)
 - Nombramos la interfaces 
 ```
 /interface ethernet
