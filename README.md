@@ -1,7 +1,12 @@
 # Load-Balancing-with-Failover-RouterOS-7
 Failover (WAN Backup)
 
-
+- Nombramos la interfaces 
+```
+/interface ethernet
+  set [ find default-name=ether1 ] name=ether1-wan comment="Tigo IPS1"
+  set [ find default-name=ether2 ] name=ether2-wan comment="Movistar ISP2"
+ ```
 - Crear en Routing->table
 ```
 
