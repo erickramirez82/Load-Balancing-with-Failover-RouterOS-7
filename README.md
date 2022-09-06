@@ -14,8 +14,8 @@ add fib name=to_ISP2
 
 ```
 /ip firewall mangle
-add action=mark-connection chain=prerouting comment="Marcar conexiones Entrantes de ISP" connection-mark=no-mark connection-state=established,related  in-interface=ether1-wan new-connection-mark=ISP1_conn passthrough=yes
-add action=mark-connection chain=prerouting connection-mark=no-mark  connection-state=established,related in-interface=ether2-wan new-connection-mark=ISP2_conn passthrough=yes
+add action=mark-connection chain=prerouting comment="Marcar conexiones Entrantes de ISP" connection-mark=no-mark   in-interface=ether1-wan new-connection-mark=ISP1_conn passthrough=yes
+add action=mark-connection chain=prerouting connection-mark=no-mark   in-interface=ether2-wan new-connection-mark=ISP2_conn passthrough=yes
 ```
 
 - Balanceo de los Servicios
