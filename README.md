@@ -9,7 +9,6 @@ Failover (WAN Backup)
  ```
 - Crear en Routing->table
 ```
-
 /routing/table
 add fib name=to_ISP1
 add fib name=to_ISP2
