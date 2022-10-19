@@ -8,6 +8,14 @@ Failover (WAN Backup)
   set [ find default-name=ether1 ] name=ether1-wan comment="Tigo IPS1"
   set [ find default-name=ether2 ] name=ether2-wan comment="Movistar ISP2"
  ```
+- Configuramos en firewall dentro del NAT 
+
+```
+/ip firewall nat
+add chain=srcnat out-interface=ether1-wan action=masquerade
+add chain=srcnat out-interface=ether2-wan action=masquerade
+```
+
 - Crear en Routing->table
 ```
 /routing/table
@@ -44,6 +52,7 @@ add action=mark-connection chain=prerouting connection-mark=no-mark dst-address-
  add action=mark-routing chain=output  connection-mark=ISP1_conn new-routing-mark=to_ISP1  passthrough=no
  add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether2-wan
  add action=mark-routing chain=output connection-mark=ISP2_conn new-routing-mark=to_ISP2  passthrough=no
+
 ```
 Luego crearlas debes volver abrir configurar manualmente el campo New Routing Mark para cada una ejemplo New Routing Mark: to_ISP1 o to_ISP2 dato proviene de /routing/table 
 
@@ -60,15 +69,20 @@ add distance=2 gateway=192.168.1.1  check-gateway=ping  comment="Default IPS2 ou
 add gateway=192.168.137.1 routing-table=to_ISP1  check-gateway=ping comment="Routing IPS1"
 add gateway=192.168.1.1 routing-table=to_ISP2 check-gateway=ping comment="Routing IPS2"
 
-# load-balanced w/ auto failover default gateways
+# load-balanced 
 /ip/route/
-add dst-address=8.8.8.8/32  gateway=192.168.137.1 scope=11 comment="Balance IPS1"
-add dst-address=200.21.200.10/32  gateway=192.168.1.1 scope=11 comment="Balance IPS2"
+add gateway=192.168.137.1@main routing-table=to_ISP1 check-gateway=ping comment="Balance IPS1"
+add gateway=192.168.1.1@main routing-table=to_ISP2 check-gateway=ping comment="Balance IPS2"
 
+#failover default gateways
 /ip/route/
 add check-gateway=ping distance=10 gateway=8.8.8.8 target-scope=11 routing-table=to_ISP1  comment="Failover IPS1"
 add check-gateway=ping distance=20 gateway=200.21.200.10 target-scope=11 routing-table=to_ISP2 comment="Failover IPS2"
 
+#check dns 
+/ip/route/
+add check-gateway=ping dst-address=8.8.8.8/32 gateway=192.168.137.1 scope=10   comment="DNS IPS1"
+add check-gateway=ping dst-address=200.21.200.10/32 gateway=192.168.1.1  scope=10   comment="DNS IPS2"
 
 
 
