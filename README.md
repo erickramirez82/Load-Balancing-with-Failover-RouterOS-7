@@ -48,10 +48,13 @@ add action=mark-connection chain=prerouting connection-mark=no-mark dst-address-
 - Salidas
 ```
 /ip firewall mangle
- add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether1-wan comment="Marcar las salida de las conexiones"
+ add chain=output connection-mark=ISP1_conn action=mark-routing new-routing-mark=to_ISP1 comment="Marcar las salida de las conexiones IPS 1 y IPS2 Balanceo"    
+ add chain=output connection-mark=ISP2_conn action=mark-routing new-routing-mark=to_ISP2 
+ add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether1-wan comment="Marcar las salida de las conexiones IPS 1 y IPS2 en el failover"
  add action=mark-routing chain=output  connection-mark=ISP1_conn new-routing-mark=to_ISP1  passthrough=no
  add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether2-wan
  add action=mark-routing chain=output connection-mark=ISP2_conn new-routing-mark=to_ISP2  passthrough=no
+ 
 
 ```
 Luego crearlas debes volver abrir configurar manualmente el campo New Routing Mark para cada una ejemplo New Routing Mark: to_ISP1 o to_ISP2 dato proviene de /routing/table 
@@ -76,13 +79,14 @@ add gateway=192.168.1.1@main routing-table=to_ISP2 check-gateway=ping comment="B
 
 #failover default gateways
 /ip/route/
-add check-gateway=ping distance=10 gateway=8.8.8.8 target-scope=11 routing-table=to_ISP1  comment="Failover IPS1"
-add check-gateway=ping distance=20 gateway=200.21.200.10 target-scope=11 routing-table=to_ISP2 comment="Failover IPS2"
+add check-gateway=ping distance=1 gateway=8.8.8.8 target-scope=11 routing-table=to_ISP1  comment="Failover IPS1"
+add check-gateway=ping distance=1 gateway=200.21.200.10 target-scope=11 routing-table=to_ISP2 comment="Failover IPS2"
 
 #check dns 
 /ip/route/
-add check-gateway=ping dst-address=8.8.8.8/32 gateway=192.168.137.1 scope=10   comment="DNS IPS1"
-add check-gateway=ping dst-address=200.21.200.10/32 gateway=192.168.1.1  scope=10   comment="DNS IPS2"
+add check-gateway=ping dst-address=8.8.8.8 gateway=192.168.137.1 scope=10   comment=" Monitor DNS IPS1"
+add check-gateway=ping dst-address=200.21.200.10 gateway=192.168.1.1  scope=10   comment="Monitor DNS IPS2"
+
 
 
 
