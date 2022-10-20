@@ -63,30 +63,36 @@ Luego crearlas debes volver abrir configurar manualmente el campo New Routing Ma
 
 1. Monitor al Dns del  operador claro:190.157.8.33, movistar:200.21.200.10, etb:200.75.51.132) 
 
+- Definir las salidas dos maneras 
+
+Usando la puerta enlace del modem
 ```
 /ip/route/
 add distance=1 gateway=192.168.137.1 check-gateway=ping comment="Default IPS1 out"
 add distance=2 gateway=192.168.1.1  check-gateway=ping  comment="Default IPS2 out"
+```
+o con los DNS del operador
 
+```
+/ip/route/
+add distance=1 gateway=8.8.8.8 target-scope=11 check-gateway=ping comment="Default IPS1 out"
+add distance=2 gateway=200.21.200.10 target-scope=11 check-gateway=ping  comment="Default IPS2 out"
+```
+
+```
 #check dns 
 /ip/route/
 add check-gateway=ping dst-address=8.8.8.8 gateway=192.168.137.1 scope=10   comment=" Monitor DNS IPS1"
 add check-gateway=ping dst-address=200.21.200.10 gateway=192.168.1.1  scope=10   comment="Monitor DNS IPS2"
 
-#failover load-balanced  default gateways
+#Routing and failover load-balanced  default gateways
 /ip/route/
-add distance=1 gateway=8.8.8.8 routing-table=to_ISP1 target-scope=11 check-gateway=ping comment="Failover IPS1"
+add distance=1 gateway=8.8.8.8 routing-table=to_ISP1 target-scope=11 check-gateway=ping comment="Routing IPS1"
 add distance=2 gateway=200.21.200.10 routing-table=to_ISP1 target-scope=11 check-gateway=ping comment="Failover IPS1"
 
 /ip/route/
-add distance=1 gateway=200.21.200.10 routing-table=to_ISP2 target-scope=11 check-gateway=ping comment="Failover IPS2"
+add distance=1 gateway=200.21.200.10 routing-table=to_ISP2 target-scope=11 check-gateway=ping comment="Routing IPS2"
 add distance=2 gateway=8.8.8.8 routing-table=to_ISP2 target-scope=11 check-gateway=ping comment="Failover IPS2"
-
-#routing 
-/ip/route/
-add gateway=192.168.137.1 routing-table=to_ISP1  check-gateway=ping comment="Routing IPS1"
-add gateway=192.168.1.1 routing-table=to_ISP2 check-gateway=ping comment="Routing IPS2"
-
 ```
 
 
