@@ -77,9 +77,9 @@ o con los DNS del operador
 /ip/route/
 add distance=1 gateway=8.8.8.8 target-scope=11 check-gateway=ping comment="Default IPS1 out"
 add distance=2 gateway=200.21.200.10 target-scope=11 check-gateway=ping  comment="Default IPS2 out"
-```
 
-```
+# <--Continuamos con las RUTAS-->
+
 #check dns 
 /ip/route/
 add check-gateway=ping dst-address=8.8.8.8 gateway=192.168.137.1 scope=10   comment=" Monitor DNS IPS1"
