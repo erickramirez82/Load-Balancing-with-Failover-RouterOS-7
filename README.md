@@ -23,37 +23,54 @@ add fib name=to_ISP1
 add fib name=to_ISP2
 ```
 
-- Crear las reglas mangle
+### Crear las reglas mangle
+
+- Conexiones Locales
+
+  Ejemplo Ips 1 gateway : 192.168.137.0/24 <br />
+  Ejemplo Ips 2 gateway : 192.168.1.0/24
 
 ```
 /ip firewall mangle
-add action=mark-connection chain=prerouting comment="Marcar conexiones Entrantes de ISP" connection-mark=no-mark   in-interface=ether1-wan new-connection-mark=ISP1_conn passthrough=yes
-add action=mark-connection chain=prerouting connection-mark=no-mark   in-interface=ether2-wan new-connection-mark=ISP2_conn passthrough=yes
+add chain=prerouting dst-address=192.168.137.0/24 action=accept in-interface=brigde comment="Conexiones Locales de ISP1" 
+add chain=prerouting dst-address=192.168.1.0/24  action=accept in-interface=brigde comment="Conexiones Locales de ISP2" 
+```
+
+- Conexiones entrates
+
+```
+/ip firewall mangle
+add action=mark-connection chain=prerouting comment="Marcar conexiones Entrantes de ISP1" connection-mark=no-mark   in-interface=ether1-wan new-connection-mark=ISP1_conn passthrough=yes
+add action=mark-connection chain=prerouting comment="Marcar conexiones Entrantes de ISP2" connection-mark=no-mark   in-interface=ether2-wan new-connection-mark=ISP2_conn passthrough=yes
 ```
 
 - Balanceo de los Servicios
 ```
 /ip firewall mangle
-add action=mark-connection chain=prerouting comment="Balanceo de los ISP" connection-mark=no-mark dst-address-type=!local in-interface=bridge new-connection-mark=ISP1_conn passthrough=yes per-connection-classifier=both-addresses:2/0
-add action=mark-connection chain=prerouting connection-mark=no-mark dst-address-type=!local in-interface=bridge new-connection-mark=ISP2_conn passthrough=yes per-connection-classifier=both-addresses:2/1
+add action=mark-connection chain=prerouting comment="Balanceo de los ISP1" connection-mark=no-mark dst-address-type=!local in-interface=bridge new-connection-mark=ISP1_conn passthrough=yes per-connection-classifier=both-addresses:2/0
+add action=mark-connection chain=prerouting comment="Balanceo de los ISP2" connection-mark=no-mark dst-address-type=!local in-interface=bridge new-connection-mark=ISP2_conn passthrough=yes per-connection-classifier=both-addresses:2/1
 ```
 - Definir Rutas
 ```
 /ip firewall mangle
- add action=mark-routing chain=prerouting comment="Definir Rutas" connection-mark=ISP1_conn new-routing-mark=to_ISP1  in-interface=bridge passthrough=no
- add action=mark-routing chain=prerouting connection-mark=ISP2_conn new-routing-mark=to_ISP2 in-interface=bridge passthrough=no
+ add action=mark-routing chain=prerouting comment="Definir Ruta IPS1" connection-mark=ISP1_conn new-routing-mark=to_ISP1  in-interface=bridge passthrough=no
+ add action=mark-routing chain=prerouting comment="Definir Ruta IPS2" connection-mark=ISP2_conn new-routing-mark=to_ISP2 in-interface=bridge passthrough=no
  ```
  Luego crearlas debes volver abrir configurar manualmente el campo New Routing Mark para cada una ejemplo New Routing Mark: to_ISP1 o to_ISP2 dato proviene de /routing/table 
 
 - Salidas
 ```
 /ip firewall mangle
- add chain=output connection-mark=ISP1_conn action=mark-routing new-routing-mark=to_ISP1 comment="Marcar las salida de las conexiones IPS 1 y IPS2 Balanceo"    
- add chain=output connection-mark=ISP2_conn action=mark-routing new-routing-mark=to_ISP2 
- add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether1-wan comment="Marcar las salida de las conexiones IPS 1 y IPS2 en el failover"
- add action=mark-routing chain=output  connection-mark=ISP1_conn new-routing-mark=to_ISP1  passthrough=no
- add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether2-wan
- add action=mark-routing chain=output connection-mark=ISP2_conn new-routing-mark=to_ISP2  passthrough=no
+ add chain=output connection-mark=ISP1_conn action=mark-routing new-routing-mark=to_ISP1 comment="Marcar las salida de las conexiones IPS 1 "    
+ add chain=output connection-mark=ISP2_conn action=mark-routing new-routing-mark=to_ISP2 comment="Marcar las salida de las conexiones IPS 2 "
+```
+- Failover para las salidas https://help.mikrotik.com/docs/pages/viewpage.action?pageId=26476608
+```
+/ip firewall mangle
+ add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether1-wan comment="Marcar las salida de las conexiones IPS 1 "
+ add action=mark-routing chain=output  connection-mark=ISP1_conn new-routing-mark=to_ISP1  passthrough=no comment="salida de las conexiones IPS  en el failover"
+ add chain=output connection-state=new connection-mark=no-mark action=mark-connection new-connection-mark=ISP1_conn out-interface=ether2-wan comment="Marcar las salida de las conexiones IPS2 2"
+ add action=mark-routing chain=output connection-mark=ISP2_conn new-routing-mark=to_ISP2  passthrough=no  comment="salida de las conexiones IPS  en el failover"
  
 
 ```
