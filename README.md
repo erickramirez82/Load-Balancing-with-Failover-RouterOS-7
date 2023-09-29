@@ -94,15 +94,18 @@ o con los DNS del operador
 /ip/route/
 add distance=1 gateway=8.8.8.8 target-scope=11 check-gateway=ping comment="Default IPS1 out"
 add distance=2 gateway=200.21.200.10 target-scope=11 check-gateway=ping  comment="Default IPS2 out"
+```
+- Continuamos con las RUTAS-->
 
-# <--Continuamos con las RUTAS-->
+check dns 
 
-#check dns 
+```
 /ip/route/
 add check-gateway=ping dst-address=8.8.8.8 gateway=192.168.137.1 scope=10   comment=" Monitor DNS IPS1"
 add check-gateway=ping dst-address=200.21.200.10 gateway=192.168.1.1  scope=10   comment="Monitor DNS IPS2"
-
-#Routing and failover load-balanced  default gateways
+```
+Routing and failover load-balanced  default gateways
+```
 /ip/route/
 add distance=1 gateway=8.8.8.8 routing-table=to_ISP1 target-scope=11 check-gateway=ping comment="Routing IPS1"
 add distance=2 gateway=200.21.200.10 routing-table=to_ISP1 target-scope=11 check-gateway=ping comment="Failover IPS1"
